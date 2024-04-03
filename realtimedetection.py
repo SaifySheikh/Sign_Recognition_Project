@@ -12,7 +12,7 @@ model = model_from_json(model_json)
 model.load_weights("signlanguagedetectionmodel48x48.h5")
 
 # Define the label names
-label=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y']
+label=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y','blank']
 
 def extract_features(image):
     feature = np.array(image)
