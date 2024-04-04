@@ -58,3 +58,6 @@ while True:
 # Release the capture
 cap.release()
 cv2.destroyAllWindows()
+
+
+new hai
