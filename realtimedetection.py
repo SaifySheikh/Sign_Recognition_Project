@@ -62,12 +62,14 @@ audio_button.grid(row=4, column=0, columnspan=2, sticky='we', padx=5, pady=5)
 developers_button = tk.Button(root, text="Developers", command=on_developers_click, font=("Helvetica", 12))
 developers_button.grid(row=5, column=0, columnspan=2, sticky='we', padx=5, pady=5)
 
-# Initialize start time
+# Initialize start time, predicted_letter, current_word, and current_sentence
 start_time = None
-predicted_letters = []
+predicted_letter = ""
+current_word = ""
+current_sentence = ""
 
 def update_frame():
-    global start_time, predicted_letters
+    global start_time, predicted_letter, current_word, current_sentence
     
     _, frame = cap.read()
     cv2.rectangle(frame, (0, 40), (300, 300), (0, 165, 255), 1)
@@ -85,29 +87,72 @@ def update_frame():
     
     # Draw prediction on frame
     cv2.rectangle(frame, (0, 0), (300, 40), (0, 165, 255), -1)
-    if pred_label == 'blank':
-        cv2.putText(frame, " ", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    if pred_label != 'blank':
+        accu = "{:.2f}".format(max_accu)
+        cv2.putText(frame, f'{pred_label}  {accu}%', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
     else:
         accu = "{:.2f}".format(max_accu)
         cv2.putText(frame, f'{pred_label}  {accu}%', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-    
+
     # Show frame
     cv2.imshow("Sign Language to Text", frame)
     
+    print(f"Predicted Label: {pred_label}, Current Word: {current_word}, Current Sentence: {current_sentence}")
+    
+    # Update letter prediction label if accuracy > 85% for 5 seconds
+    # Update letter prediction label if accuracy > 85% for 5 seconds
     # Update letter prediction label if accuracy > 85% for 5 seconds
     if max_accu > 85:
         if start_time is not None:
             elapsed_time = time.time() - start_time
             if elapsed_time >= 5 and pred_label != 'blank':
-                predicted_letters.append(pred_label)
-                prediction_letter_label.config(text=' '.join(predicted_letters))
+                predicted_letter = pred_label
+                prediction_letter_label.config(text=predicted_letter)
                 start_time = None
+                if pred_label != 'blank':
+                    current_word += pred_label
+                    prediction_word_label.config(text=current_word)
+            elif elapsed_time >= 5 and pred_label == 'blank':
+                predicted_letter = ' '
+                prediction_letter_label.config(text=predicted_letter)
+                start_time = None
+                if current_word:
+                    if current_sentence:
+                        current_sentence += " " + current_word
+                    else:
+                        current_sentence += current_word
+                    prediction_sentence_label.config(text=current_sentence)
+                    current_word = ""
+                    prediction_word_label.config(text=current_word)
         else:
             start_time = time.time()
     else:
         if start_time is not None:
             start_time = None
-        
+
+    print("Predicted Letter:", predicted_letter)
+    if predicted_letter == 'blank':
+        if start_time is not None:
+            elapsed_time = time.time() - start_time
+            print("Elapsed time:", elapsed_time)
+            print("Current word:", current_word)
+            print("Current sentence:", current_sentence)
+            if elapsed_time >= 5:
+                if current_word:
+                    if current_sentence:
+                        current_sentence += " " + current_word
+                    else:
+                        current_sentence += current_word
+                    prediction_sentence_label.config(text=current_sentence)
+                    current_word = ""
+                    prediction_word_label.config(text=current_word)
+                    prediction_letter_label.config(text="")
+                    start_time = None
+        else:
+            start_time = time.time()
+
+
+    
     # Check for key press
     if cv2.waitKey(1) & 0xFF == ord('q'):
         root.quit()
