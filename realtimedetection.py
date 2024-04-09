@@ -2,6 +2,7 @@ from keras.models import model_from_json
 import cv2
 import numpy as np
 import tkinter as tk
+from tkinter import ttk
 import time
 
 # Load the model
@@ -32,35 +33,55 @@ cap = cv2.VideoCapture(0)
 root = tk.Tk()
 root.title("Sign Language to Text")
 
+# Set window size and position
+window_width = 800
+window_height = 600
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+x = (screen_width - window_width) // 2
+y = (screen_height - window_height) // 2
+root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+# Create a style
+style = ttk.Style()
+style.configure("TFrame", background="#f0f0f0")
+style.configure("TLabel", background="#f0f0f0", font=("Helvetica", 18))
+style.configure("TButton", background="#007bff", foreground="black", font=("Poppins", 12))
+style.map("TButton", background=[("active", "#0056b3")])
+
+# Create a frame for the content
+content_frame = ttk.Frame(root, style="TFrame")
+content_frame.pack(expand=True, fill='both', padx=20, pady=20)
+
 # Add heading
-heading_label = tk.Label(root, text="Sign Language to Text", font=("Helvetica", 24))
-heading_label.grid(row=0, column=0, columnspan=2, pady=10)
+heading_label = ttk.Label(content_frame, text="Sign Language to Text", font=("Helvetica", 24))
+heading_label.pack(pady=(0, 20))
 
 # Add row for displaying letter
-letter_label = tk.Label(root, text="Letter:", font=("Helvetica", 18))
-letter_label.grid(row=1, column=0, sticky='e', padx=5, pady=5)
-prediction_letter_label = tk.Label(root, text="", font=("Helvetica", 18))
-prediction_letter_label.grid(row=1, column=1, sticky='w', padx=5, pady=5)
+letter_label = ttk.Label(content_frame, text="Letter:")
+letter_label.pack(anchor='w', padx=5, pady=5)
+prediction_letter_label = ttk.Label(content_frame, text="", font=("Helvetica", 18))
+prediction_letter_label.pack(anchor='w', padx=5, pady=5)
 
 # Add row for displaying word
-word_label = tk.Label(root, text="Word:", font=("Helvetica", 18))
-word_label.grid(row=2, column=0, sticky='e', padx=5, pady=5)
-prediction_word_label = tk.Label(root, text="", font=("Helvetica", 18))
-prediction_word_label.grid(row=2, column=1, sticky='w', padx=5, pady=5)
+word_label = ttk.Label(content_frame, text="Word:")
+word_label.pack(anchor='w', padx=5, pady=5)
+prediction_word_label = ttk.Label(content_frame, text="", font=("Helvetica", 18))
+prediction_word_label.pack(anchor='w', padx=5, pady=5)
 
 # Add row for displaying sentence
-sentence_label = tk.Label(root, text="Sentence:", font=("Helvetica", 18))
-sentence_label.grid(row=3, column=0, sticky='e', padx=5, pady=5)
-prediction_sentence_label = tk.Label(root, text="", font=("Helvetica", 18))
-prediction_sentence_label.grid(row=3, column=1, sticky='w', padx=5, pady=5)
+sentence_label = ttk.Label(content_frame, text="Sentence:")
+sentence_label.pack(anchor='w', padx=5, pady=5)
+prediction_sentence_label = ttk.Label(content_frame, text="", font=("Helvetica", 18))
+prediction_sentence_label.pack(anchor='w', padx=5, pady=5)
 
 # Add "Audio" button
-audio_button = tk.Button(root, text="Audio", command=on_audio_click, font=("Helvetica", 12))
-audio_button.grid(row=4, column=0, columnspan=2, sticky='we', padx=5, pady=5)
+audio_button = ttk.Button(content_frame, text="Audio", command=on_audio_click)
+audio_button.pack(expand=True, fill='both', padx=5, pady=5)
 
 # Add "Developers" button
-developers_button = tk.Button(root, text="Developers", command=on_developers_click, font=("Helvetica", 12))
-developers_button.grid(row=5, column=0, columnspan=2, sticky='we', padx=5, pady=5)
+developers_button = ttk.Button(content_frame, text="Developers", command=on_developers_click)
+developers_button.pack(expand=True, fill='both', padx=5, pady=5)
 
 # Initialize start time, predicted_letter, current_word, and current_sentence
 start_time = None
@@ -97,10 +118,6 @@ def update_frame():
     # Show frame
     cv2.imshow("Sign Language to Text", frame)
     
-    print(f"Predicted Label: {pred_label}, Current Word: {current_word}, Current Sentence: {current_sentence}")
-    
-    # Update letter prediction label if accuracy > 85% for 5 seconds
-    # Update letter prediction label if accuracy > 85% for 5 seconds
     # Update letter prediction label if accuracy > 85% for 5 seconds
     if max_accu > 85:
         if start_time is not None:
@@ -130,13 +147,10 @@ def update_frame():
         if start_time is not None:
             start_time = None
 
-    print("Predicted Letter:", predicted_letter)
+    # Update sentence if the current word is blank for more than 5 seconds
     if predicted_letter == 'blank':
         if start_time is not None:
             elapsed_time = time.time() - start_time
-            print("Elapsed time:", elapsed_time)
-            print("Current word:", current_word)
-            print("Current sentence:", current_sentence)
             if elapsed_time >= 5:
                 if current_word:
                     if current_sentence:
@@ -151,8 +165,6 @@ def update_frame():
         else:
             start_time = time.time()
 
-
-    
     # Check for key press
     if cv2.waitKey(1) & 0xFF == ord('q'):
         root.quit()
