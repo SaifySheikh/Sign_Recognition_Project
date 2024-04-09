@@ -72,6 +72,9 @@ content_frame.config(borderwidth=2, relief="groove", width=600, height=400)
 content_frame.config(style="TFrame")
 
 
+
+
+
 # Add heading
 heading_label = ttk.Label(content_frame, text="Sign Language to Text", font=("Helvetica", 24))
 heading_label.pack(pady=(0, 20))

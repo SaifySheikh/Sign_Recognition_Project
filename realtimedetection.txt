@@ -26,8 +26,39 @@ def on_developers_click():
 def on_audio_click():
     print("Audio button clicked!")
 
+def get_suggestions(current_word):
+    # Example suggestion logic
+    suggestions = ['APPLE', 'banana', 'orange', 'pear', 'peach', 'pineapple']
+    return [suggestion for suggestion in suggestions if suggestion.startswith(current_word)]
+
+def suggestion_click(suggestion):
+    global current_word, current_sentence
+    current_sentence += " " + suggestion
+    prediction_sentence_label.config(text=current_sentence)
+    current_word = ""
+    prediction_word_label.config(text=current_word)
+    prediction_letter_label.config(text="")
+    # Destroy all suggestion buttons
+    for widget in content_frame.winfo_children():
+        if isinstance(widget, ttk.Button):
+            widget.destroy()
+
+
 # Open video capture
 cap = cv2.VideoCapture(0)
+
+# Initialize Tkinter
+# root = tk.Tk()
+# root.title("Sign Language to Text")
+
+# # Set window size and position
+# window_width = 800
+# window_height = 600
+# screen_width = root.winfo_screenwidth()
+# screen_height = root.winfo_screenheight()
+# x = (screen_width - window_width) // 2
+# y = (screen_height - window_height) // 2
+# root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
 # Initialize Tkinter
 root = tk.Tk()
@@ -42,10 +73,14 @@ x = (screen_width - window_width) // 2
 y = (screen_height - window_height) // 2
 root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
+# Change the background color of the root window
+root.configure(bg="#6AD4DD")
+
+
 # Create a style
 style = ttk.Style()
-style.configure("TFrame", background="#f0f0f0")
-style.configure("TLabel", background="#f0f0f0", font=("Helvetica", 18))
+style.configure("TFrame", background="#6AD4DD")
+style.configure("TLabel", background="#6AD4DD", font=("Poppins", 18))
 style.configure("TButton", background="#007bff", foreground="black", font=("Poppins", 12))
 style.map("TButton", background=[("active", "#0056b3")])
 
@@ -76,12 +111,16 @@ prediction_sentence_label = ttk.Label(content_frame, text="", font=("Helvetica",
 prediction_sentence_label.pack(anchor='w', padx=5, pady=5)
 
 # Add "Audio" button
-audio_button = ttk.Button(content_frame, text="Audio", command=on_audio_click)
-audio_button.pack(expand=True, fill='both', padx=5, pady=5)
+audio_button = ttk.Button(root, text="Audio", command=on_audio_click)
+audio_button.pack(side="top", anchor="ne", padx=10, pady=10)
 
 # Add "Developers" button
-developers_button = ttk.Button(content_frame, text="Developers", command=on_developers_click)
-developers_button.pack(expand=True, fill='both', padx=5, pady=5)
+developers_button = ttk.Button(root, text="Developers", command=on_developers_click)
+developers_button.pack(side="top", anchor="ne", padx=10, pady=10)
+
+# Add row for suggestions
+suggestion_label = ttk.Label(content_frame, text="", font=("Helvetica", 12))
+suggestion_label.pack(side="bottom", padx=20, pady=20, fill='both', expand=True)
 
 # Initialize start time, predicted_letter, current_word, and current_sentence
 start_time = None
@@ -129,6 +168,7 @@ def update_frame():
                 if pred_label != 'blank':
                     current_word += pred_label
                     prediction_word_label.config(text=current_word)
+                    update_suggestion(current_word)
             elif elapsed_time >= 5 and pred_label == 'blank':
                 predicted_letter = ' '
                 prediction_letter_label.config(text=predicted_letter)
@@ -174,6 +214,17 @@ def update_frame():
 
 # Start updating frame
 update_frame()
+
+def update_suggestion(current_word):
+    suggestions = get_suggestions(current_word)
+    if suggestions:
+        for i in range(min(len(suggestions), 3)):
+            suggestion_btn = ttk.Button(content_frame, text=suggestions[i], command=lambda s=suggestions[i]: suggestion_click(s))
+            suggestion_btn.pack(side="bottom", padx=5, pady=5)
+    else:
+        suggestion_label.config(text="No suggestions available")
+        root.after(3000, lambda: suggestion_label.config(text=""))
+
 
 root.mainloop()
 
