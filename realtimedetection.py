@@ -66,7 +66,7 @@ def on_developers_click():
     images_info = [("Images/Saify.jpeg", "Mohammad Saify Sheikh (Team Leader)"),
                    ("Images/Himanshu.jpg", "Himanshu Shrigiriwar"),
                    ("Images/Soham.jpg", "Soham Bedi"),
-                   ("Images/image4.jpeg", "Rugved Mhatre")]
+                   ("Images/Rugved.jpg", "Rugved Mhatre")]
 
     for image_path, name in images_info:
         developer_frame = ttk.Frame(content_frame, style="TFrame", padding=10)
@@ -133,7 +133,6 @@ def suggestion_click(suggestion):
     current_word = ""
     prediction_word_label.config(text=current_word)
     prediction_letter_label.config(text="")
-    # Destroy all suggestion buttons
     for widget in content_frame.winfo_children():
         if isinstance(widget, ttk.Button):
             widget.destroy()
@@ -219,10 +218,10 @@ def update_frame():
 
     cv2.imshow("Sign Language to Text", frame)
 
-    if max_accu > 85:
+    if max_accu > 80:
         if start_time is not None:
             elapsed_time = time.time() - start_time
-            if elapsed_time >= 5 and pred_label != 'blank':
+            if elapsed_time >= 3 and pred_label != 'blank':
                 predicted_letter = pred_label
                 prediction_letter_label.config(text=predicted_letter)
                 start_time = None
@@ -230,7 +229,7 @@ def update_frame():
                     current_word += pred_label
                     prediction_word_label.config(text=current_word)
                     update_suggestion(current_word)
-            elif elapsed_time >= 5 and pred_label == 'blank':
+            elif elapsed_time >= 3 and pred_label == 'blank':
                 predicted_letter = ' '
                 prediction_letter_label.config(text=predicted_letter)
                 start_time = None
@@ -251,7 +250,7 @@ def update_frame():
     if predicted_letter == 'blank':
         if start_time is not None:
             elapsed_time = time.time() - start_time
-            if elapsed_time >= 5:
+            if elapsed_time >= 3:
                 if current_word:
                     if current_sentence:
                         current_sentence += " " + current_word
