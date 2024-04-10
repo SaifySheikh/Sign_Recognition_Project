@@ -8,6 +8,8 @@ from PIL import Image, ImageTk
 from PIL import Image, ImageTk, ImageDraw
 import time
 import pyttsx3
+from tkinter import messagebox
+import webbrowser
 
 # Load the model
 json_file = open("signlanguagedetectionmodel48x48.json", "r")
@@ -339,6 +341,61 @@ def update_suggestion(current_word):
     else:
         suggestion_label.config(text="No suggestions available")
         root.after(3000, lambda: suggestion_label.config(text=""))
+
+def on_project_description_click():
+    # Create a new window
+    project_description_window = tk.Toplevel(root)
+    project_description_window.title("Project Description")
+    project_description_window.configure(bg="#0B0B45")
+
+    # Set window size and position
+    window_width = 600
+    window_height = 400
+    screen_width = project_description_window.winfo_screenwidth()
+    screen_height = project_description_window.winfo_screenheight()
+    x = (screen_width - window_width) // 2
+    y = (screen_height - window_height) // 2
+    project_description_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+    # Add project description label
+    project_description_label = tk.Label(project_description_window, text="Project Description", font=("Helvetica", 20), bg="#0B0B45", fg="#00c04b")
+    project_description_label.pack(pady=(20, 10))
+
+    # Add project information
+    project_info = """
+    This project is a Sign Language to Text converter that uses a convolutional neural network (CNN)
+    to recognize hand signs and translate them into text. The model is trained on a dataset of
+    images of hand signs corresponding to letters of the alphabet and some common words.
+
+    Tech Stack:
+    - Python
+    - OpenCV
+    - Keras
+    - Tkinter
+    - pyttsx3
+
+    Team Members:
+    - Mohammad Saify Sheikh (Team Leader)
+    - Himanshu Shrigiriwar
+    - Soham Bedi
+    - Rugved Mhatre
+
+    GitHub Repository: https://github.com/SaifySheikh/Sign_Recognition_Project
+    """
+
+    def open_github(event):
+        webbrowser.open_new_tab("https://github.com/SaifySheikh/Sign_Recognition_Project")
+
+    project_info_label = tk.Label(project_description_window, text=project_info, font=("Helvetica", 14), bg="#0B0B45", fg="white", justify="left")
+    project_info_label.pack(expand=True, padx=20, pady=10)
+
+    # Make the GitHub repository link clickable
+    project_info_label.bind("<Button-1>", open_github)
+
+# Add "Project Description" button
+project_description_button = ttk.Button(root, text="Project Description", command=on_project_description_click)
+project_description_button.pack(side="top", anchor="ne", padx=10, pady=10)
+
 
 
 root.mainloop()

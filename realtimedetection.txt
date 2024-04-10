@@ -3,7 +3,11 @@ import cv2
 import numpy as np
 import tkinter as tk
 from tkinter import ttk
+from tkinter import ttk
+from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw
 import time
+import pyttsx3
 
 # Load the model
 json_file = open("signlanguagedetectionmodel48x48.json", "r")
@@ -13,22 +17,139 @@ model = model_from_json(model_json)
 model.load_weights("signlanguagedetectionmodel48x48.h5")
 
 # Define the label names
-label=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y','blank']
+label=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I','J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','blank']
 
 def extract_features(image):
     feature = np.array(image)
     feature = feature.reshape(1, 48, 48, 1)
     return feature / 255.0
 
+def create_circular_image(image_path, size):
+    # Open the original image
+    original_image = Image.open(image_path)
+    # Resize the original image to match the specified size
+    original_image = original_image.resize(size, Image.BICUBIC)
+    # Create a circular mask
+    mask = Image.new("L", size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((0, 0) + size, fill=255)
+    # Create a new RGBA image with transparent background
+    result = Image.new("RGBA", size, (0, 0, 0, 0))
+    # Paste the original image onto the circular mask
+    result.paste(original_image, (0, 0), mask)
+    return result
+
+
 def on_developers_click():
-    print("Developers button clicked!")
+    # Create a new window
+    developers_window = tk.Toplevel(root)
+    developers_window.title("Developers")
+
+    # Set window size and position
+    window_width = 800
+    window_height = 300
+    screen_width = developers_window.winfo_screenwidth()
+    screen_height = developers_window.winfo_screenheight()
+    x = (screen_width - window_width) // 2
+    y = (screen_height - window_height) // 2
+    developers_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+    # Change background color
+    developers_window.configure(bg="#0B0B45")
+
+    # Create a canvas
+    canvas = tk.Canvas(developers_window, bg="#0B0B45")
+    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    # Add a scrollbar
+    scrollbar = ttk.Scrollbar(developers_window, orient=tk.VERTICAL, command=canvas.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    # Configure the canvas to use the scrollbar
+    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+    # Create a frame inside the canvas to hold the content
+    content_frame = ttk.Frame(canvas, style="TFrame")
+    canvas.create_window((0, 0), window=content_frame, anchor=tk.NW)
+
+    # Add heading
+    heading_label = tk.Label(content_frame, text="Developers", font=("Helvetica", 24), background="#0B0B45", foreground="white")
+    heading_label.pack(pady=(20, 10))
+
+    # Load and display the images
+    images_info = [("Images/Saify.jpeg", "Mohammad Saify Sheikh (Team Leader)"),
+                   ("Images/Himanshu.jpg", "Himanshu Shrigiriwar"),
+                   ("Images/Soham.jpg", "Soham Bedi"),
+                   ("Images/image4.jpeg", "Rugved Mhatre")]
+
+    for image_path, name in images_info:
+        # Create a frame for each developer
+        developer_frame = ttk.Frame(content_frame, style="TFrame", padding=10)
+        developer_frame.pack(side="top", pady=10)
+
+        # Create circular image with larger size
+        circular_image = create_circular_image(image_path, (200, 200))
+
+        # Convert circular image to PhotoImage
+        circular_image_photo = ImageTk.PhotoImage(circular_image)
+
+        # Create label for circular image
+        image_label = tk.Label(developer_frame, image=circular_image_photo, background="#0B0B45")
+        image_label.image = circular_image_photo  # To prevent image from being garbage collected
+        image_label.pack(side="left", padx=10)
+
+        # Add developer's name below the image
+        developer_name_label = tk.Label(developer_frame, text=name, font=("Helvetica", 14), background="#0B0B45", foreground="white")
+        developer_name_label.pack(side="left", padx=10, pady=5)
+
+    # Update canvas to show the content
+    canvas.update_idletasks()
+    canvas.configure(scrollregion=canvas.bbox("all"))
+
+    developers_window.mainloop()
+
+
+
+
+# Initialize the text-to-speech engine
+engine = pyttsx3.init()
+engine.setProperty('rate', 125)
 
 def on_audio_click():
     print("Audio button clicked!")
+    global current_sentence
+    if current_sentence:
+        # Speak the current sentence
+        engine.say(current_sentence)
+        engine.runAndWait()
+    else:
+        # If nothing is present in the sentence, speak "Nothing to say"
+        engine.say("Nothing to say")
+        engine.runAndWait()    
 
 def get_suggestions(current_word):
     # Example suggestion logic
-    suggestions = ['APPLE', 'banana', 'orange', 'pear', 'peach', 'pineapple']
+    suggestions = ['APPLE', 'BANANA', 'ORANGE', 'PEAR', 'PEACH', 'PINEAPPLE', 'HI', 'HELLO', 'HEY', 'GOOD MORNING', 'GOOD AFTERNOON', 'GOOD EVENING', 
+               'HOWDY', 'GREETINGS', 'SALUTATIONS', 'WHATS UP', 'SUP', 
+               'HOWS IT GOING', 'NICE TO MEET YOU', 'PLEASED TO MEET YOU', 'WELCOME', 
+               'HOLA', 'BONJOUR', 'CIAO', 'NAMASTE', 'SALAAM', 'DOG', 'CAT', 'BIRD', 'ELEPHANT', 'LION', 'TIGER', 
+               'HOUSE', 'CAR', 'BIKE', 'PLANE', 'TRAIN', 'BOAT', 
+               'RED', 'BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PURPLE', 
+               'HAPPY', 'SAD', 'ANGRY', 'EXCITED', 'CALM', 'SURPRISED', 
+               'EAT', 'DRINK', 'SLEEP', 'RUN', 'WALK', 'JUMP', 
+               'BIG', 'SMALL', 'TALL', 'SHORT', 'THIN', 
+               'HOT', 'COLD', 'FAST', 'SLOW', 'OLD', 'NEW',
+               'APPLE', 'BALL', 'CAT', 'DOG', 'ELEPHANT', 'FISH',
+               'GOAT', 'HAT', 'ICE', 'JUICE', 'KITE', 'LION',
+               'MOON', 'NEST', 'OWL', 'PEAR', 'QUEEN', 'RAT',
+               'SUN', 'TREE', 'UMBRELLA', 'VAN', 'WATCH', 'RCOEM',
+               'YES', 'ZEBRA', 'CARROT', 'BUS', 'TRAIN', 'AIRPLANE',
+               'TRUCK', 'ROBOT', 'ROCKET', 'PIANO', 'GUITAR', 'VIOLIN',
+               'COMPUTER', 'PHONE', 'TABLET', 'CAMERA', 'Ramdeobaba', 'OVEN',
+               'CHAIR', 'TABLE', 'BED', 'LAMP', 'MIRROR', 'WINDOW','COLLEGE','ENGINEERING','AND','MANAGEMENT']
+
+    
     return [suggestion for suggestion in suggestions if suggestion.startswith(current_word)]
 
 def suggestion_click(suggestion):
@@ -47,22 +168,11 @@ def suggestion_click(suggestion):
 # Open video capture
 cap = cv2.VideoCapture(0)
 
-# Initialize Tkinter
-# root = tk.Tk()
-# root.title("Sign Language to Text")
-
-# # Set window size and position
-# window_width = 800
-# window_height = 600
-# screen_width = root.winfo_screenwidth()
-# screen_height = root.winfo_screenheight()
-# x = (screen_width - window_width) // 2
-# y = (screen_height - window_height) // 2
-# root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
 # Initialize Tkinter
 root = tk.Tk()
 root.title("Sign Language to Text")
+
 
 # Set window size and position
 window_width = 800
@@ -74,19 +184,22 @@ y = (screen_height - window_height) // 2
 root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
 # Change the background color of the root window
-root.configure(bg="#6AD4DD")
+root.configure(bg="#0B0B45")
 
 
 # Create a style
 style = ttk.Style()
-style.configure("TFrame", background="#6AD4DD")
-style.configure("TLabel", background="#6AD4DD", font=("Poppins", 18))
-style.configure("TButton", background="#007bff", foreground="black", font=("Poppins", 12))
-style.map("TButton", background=[("active", "#0056b3")])
+style.configure("TFrame", background="#0B0B45")
+style.configure("TLabel", background="#0B0B45", foreground="white", font=("Poppins", 18))
+style.configure("TButton", background="#00c04b", foreground="#00c04b", font=("Poppins", 12))
 
 # Create a frame for the content
 content_frame = ttk.Frame(root, style="TFrame")
 content_frame.pack(expand=True, fill='both', padx=20, pady=20)
+
+# Add a separator below the title
+
+
 
 # Add heading
 heading_label = ttk.Label(content_frame, text="Sign Language to Text", font=("Helvetica", 24))
@@ -121,6 +234,8 @@ developers_button.pack(side="top", anchor="ne", padx=10, pady=10)
 # Add row for suggestions
 suggestion_label = ttk.Label(content_frame, text="", font=("Helvetica", 12))
 suggestion_label.pack(side="bottom", padx=20, pady=20, fill='both', expand=True)
+
+
 
 # Initialize start time, predicted_letter, current_word, and current_sentence
 start_time = None
