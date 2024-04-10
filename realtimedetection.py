@@ -11,14 +11,12 @@ import pyttsx3
 from tkinter import messagebox
 import webbrowser
 
-# Load the model
 json_file = open("signlanguagedetectionmodel48x48.json", "r")
 model_json = json_file.read()
 json_file.close()
 model = model_from_json(model_json)
 model.load_weights("signlanguagedetectionmodel48x48.h5")
 
-# Define the label names
 label=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I','J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','blank']
 
 def extract_features(image):
@@ -27,27 +25,19 @@ def extract_features(image):
     return feature / 255.0
 
 def create_circular_image(image_path, size):
-    # Open the original image
     original_image = Image.open(image_path)
-    # Resize the original image to match the specified size
     original_image = original_image.resize(size, Image.BICUBIC)
-    # Create a circular mask
     mask = Image.new("L", size, 0)
     draw = ImageDraw.Draw(mask)
     draw.ellipse((0, 0) + size, fill=255)
-    # Create a new RGBA image with transparent background
     result = Image.new("RGBA", size, (0, 0, 0, 0))
-    # Paste the original image onto the circular mask
     result.paste(original_image, (0, 0), mask)
     return result
 
 
 def on_developers_click():
-    # Create a new window
     developers_window = tk.Toplevel(root)
     developers_window.title("Developers")
-
-    # Set window size and position
     window_width = 800
     window_height = 300
     screen_width = developers_window.winfo_screenwidth()
@@ -56,56 +46,43 @@ def on_developers_click():
     y = (screen_height - window_height) // 2
     developers_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
-    # Change background color
     developers_window.configure(bg="#0B0B45")
 
-    # Create a canvas
     canvas = tk.Canvas(developers_window, bg="#0B0B45")
     canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-    # Add a scrollbar
     scrollbar = ttk.Scrollbar(developers_window, orient=tk.VERTICAL, command=canvas.yview)
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-    # Configure the canvas to use the scrollbar
     canvas.configure(yscrollcommand=scrollbar.set)
     canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-    # Create a frame inside the canvas to hold the content
     content_frame = ttk.Frame(canvas, style="TFrame")
     canvas.create_window((0, 0), window=content_frame, anchor=tk.NW)
 
-    # Add heading
     heading_label = tk.Label(content_frame, text="Developers", font=("Helvetica", 24), background="#0B0B45", foreground="white")
     heading_label.pack(pady=(20, 10))
 
-    # Load and display the images
     images_info = [("Images/Saify.jpeg", "Mohammad Saify Sheikh (Team Leader)"),
                    ("Images/Himanshu.jpg", "Himanshu Shrigiriwar"),
                    ("Images/Soham.jpg", "Soham Bedi"),
                    ("Images/image4.jpeg", "Rugved Mhatre")]
 
     for image_path, name in images_info:
-        # Create a frame for each developer
         developer_frame = ttk.Frame(content_frame, style="TFrame", padding=10)
         developer_frame.pack(side="top", pady=10)
 
-        # Create circular image with larger size
         circular_image = create_circular_image(image_path, (200, 200))
 
-        # Convert circular image to PhotoImage
         circular_image_photo = ImageTk.PhotoImage(circular_image)
 
-        # Create label for circular image
         image_label = tk.Label(developer_frame, image=circular_image_photo, background="#0B0B45")
-        image_label.image = circular_image_photo  # To prevent image from being garbage collected
+        image_label.image = circular_image_photo
         image_label.pack(side="left", padx=10)
 
-        # Add developer's name below the image
         developer_name_label = tk.Label(developer_frame, text=name, font=("Helvetica", 14), background="#0B0B45", foreground="white")
         developer_name_label.pack(side="left", padx=10, pady=5)
 
-    # Update canvas to show the content
     canvas.update_idletasks()
     canvas.configure(scrollregion=canvas.bbox("all"))
 
@@ -113,8 +90,6 @@ def on_developers_click():
 
 
 
-
-# Initialize the text-to-speech engine
 engine = pyttsx3.init()
 engine.setProperty('rate', 125)
 
@@ -122,20 +97,17 @@ def on_audio_click():
     print("Audio button clicked!")
     global current_sentence
     if current_sentence:
-        # Speak the current sentence
         engine.say(current_sentence)
         engine.runAndWait()
     else:
-        # If nothing is present in the sentence, speak "Nothing to say"
         engine.say("Nothing to say")
         engine.runAndWait()    
 
 def get_suggestions(current_word):
-    # Example suggestion logic
     suggestions = ['APPLE', 'BANANA', 'ORANGE', 'PEAR', 'PEACH', 'PINEAPPLE', 'HI', 'HELLO', 'HEY', 'GOOD MORNING', 'GOOD AFTERNOON', 'GOOD EVENING', 
                'HOWDY', 'GREETINGS', 'SALUTATIONS', 'WHATS UP', 'SUP', 
                'HOWS IT GOING', 'NICE TO MEET YOU', 'PLEASED TO MEET YOU', 'WELCOME', 
-               'HOLA', 'BONJOUR', 'CIAO', 'NAMASTE', 'SALAAM', 'DOG', 'CAT', 'BIRD', 'ELEPHANT', 'LION', 'TIGER', 
+               'HOLA', 'BONJOUR', 'CIAO', 'SALAAM', 'NAMASTE', 'DOG', 'CAT', 'BIRD', 'ELEPHANT', 'LION', 'TIGER', 
                'HOUSE', 'CAR', 'BIKE', 'PLANE', 'TRAIN', 'BOAT', 
                'RED', 'BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PURPLE', 
                'HAPPY', 'SAD', 'ANGRY', 'EXCITED', 'CALM', 'SURPRISED', 
@@ -146,9 +118,9 @@ def get_suggestions(current_word):
                'GOAT', 'HAT', 'ICE', 'JUICE', 'KITE', 'LION',
                'MOON', 'NEST', 'OWL', 'PEAR', 'QUEEN', 'RAT',
                'SUN', 'TREE', 'UMBRELLA', 'VAN', 'WATCH', 'RCOEM',
-               'YES', 'ZEBRA', 'CARROT', 'BUS', 'TRAIN', 'AIRPLANE',
+               'YES', 'NO', 'ZEBRA', 'CARROT', 'BUS', 'TRAIN', 'AIRPLANE',
                'TRUCK', 'ROBOT', 'ROCKET', 'PIANO', 'GUITAR', 'VIOLIN',
-               'COMPUTER', 'PHONE', 'TABLET', 'CAMERA', 'Ramdeobaba', 'OVEN',
+               'COMPUTER', 'PHONE', 'TABLET', 'CAMERA', 'RAMDEOBABA', 'OVEN',
                'CHAIR', 'TABLE', 'BED', 'LAMP', 'MIRROR', 'WINDOW','COLLEGE','ENGINEERING','AND','MANAGEMENT']
 
     
@@ -166,17 +138,11 @@ def suggestion_click(suggestion):
         if isinstance(widget, ttk.Button):
             widget.destroy()
 
-
-# Open video capture
 cap = cv2.VideoCapture(0)
 
-
-# Initialize Tkinter
 root = tk.Tk()
 root.title("Sign Language to Text")
 
-
-# Set window size and position
 window_width = 800
 window_height = 600
 screen_width = root.winfo_screenwidth()
@@ -185,61 +151,44 @@ x = (screen_width - window_width) // 2
 y = (screen_height - window_height) // 2
 root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
-# Change the background color of the root window
 root.configure(bg="#0B0B45")
 
 
-# Create a style
 style = ttk.Style()
 style.configure("TFrame", background="#0B0B45")
 style.configure("TLabel", background="#0B0B45", foreground="white", font=("Poppins", 18))
 style.configure("TButton", background="#00c04b", foreground="#00c04b", font=("Poppins", 12))
 
-# Create a frame for the content
 content_frame = ttk.Frame(root, style="TFrame")
 content_frame.pack(expand=True, fill='both', padx=20, pady=20)
 
-# Add a separator below the title
-
-
-
-# Add heading
 heading_label = ttk.Label(content_frame, text="Sign Language to Text", font=("Helvetica", 24))
 heading_label.pack(pady=(0, 20))
 
-# Add row for displaying letter
 letter_label = ttk.Label(content_frame, text="Letter:")
 letter_label.pack(anchor='w', padx=5, pady=5)
 prediction_letter_label = ttk.Label(content_frame, text="", font=("Helvetica", 18))
 prediction_letter_label.pack(anchor='w', padx=5, pady=5)
 
-# Add row for displaying word
 word_label = ttk.Label(content_frame, text="Word:")
 word_label.pack(anchor='w', padx=5, pady=5)
 prediction_word_label = ttk.Label(content_frame, text="", font=("Helvetica", 18))
 prediction_word_label.pack(anchor='w', padx=5, pady=5)
 
-# Add row for displaying sentence
 sentence_label = ttk.Label(content_frame, text="Sentence:")
 sentence_label.pack(anchor='w', padx=5, pady=5)
 prediction_sentence_label = ttk.Label(content_frame, text="", font=("Helvetica", 18))
 prediction_sentence_label.pack(anchor='w', padx=5, pady=5)
 
-# Add "Audio" button
 audio_button = ttk.Button(root, text="Audio", command=on_audio_click)
 audio_button.pack(side="top", anchor="ne", padx=10, pady=10)
 
-# Add "Developers" button
 developers_button = ttk.Button(root, text="Developers", command=on_developers_click)
 developers_button.pack(side="top", anchor="ne", padx=10, pady=10)
 
-# Add row for suggestions
 suggestion_label = ttk.Label(content_frame, text="", font=("Helvetica", 12))
 suggestion_label.pack(side="bottom", padx=20, pady=20, fill='both', expand=True)
 
-
-
-# Initialize start time, predicted_letter, current_word, and current_sentence
 start_time = None
 predicted_letter = ""
 current_word = ""
@@ -250,19 +199,16 @@ def update_frame():
     
     _, frame = cap.read()
     cv2.rectangle(frame, (0, 40), (300, 300), (0, 165, 255), 1)
-    
-    # Crop the frame
+
     cropframe = frame[40:300, 0:300]
     cropframe = cv2.cvtColor(cropframe, cv2.COLOR_BGR2GRAY)
     cropframe = cv2.resize(cropframe, (48, 48))
     cropframe = extract_features(cropframe)
-    
-    # Make predictions
+
     pred = model.predict(cropframe)
     max_accu = np.max(pred) * 100
     pred_label = label[pred.argmax()]
     
-    # Draw prediction on frame
     cv2.rectangle(frame, (0, 0), (300, 40), (0, 165, 255), -1)
     if pred_label != 'blank':
         accu = "{:.2f}".format(max_accu)
@@ -271,10 +217,8 @@ def update_frame():
         accu = "{:.2f}".format(max_accu)
         cv2.putText(frame, f'{pred_label}  {accu}%', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
-    # Show frame
     cv2.imshow("Sign Language to Text", frame)
-    
-    # Update letter prediction label if accuracy > 85% for 5 seconds
+
     if max_accu > 85:
         if start_time is not None:
             elapsed_time = time.time() - start_time
@@ -304,7 +248,6 @@ def update_frame():
         if start_time is not None:
             start_time = None
 
-    # Update sentence if the current word is blank for more than 5 seconds
     if predicted_letter == 'blank':
         if start_time is not None:
             elapsed_time = time.time() - start_time
@@ -322,33 +265,33 @@ def update_frame():
         else:
             start_time = time.time()
 
-    # Check for key press
     if cv2.waitKey(1) & 0xFF == ord('q'):
         root.quit()
 
-    # Update frame
     root.after(10, update_frame)
 
-# Start updating frame
 update_frame()
 
 def update_suggestion(current_word):
     suggestions = get_suggestions(current_word)
     if suggestions:
+        for widget in content_frame.winfo_children():
+            if isinstance(widget, ttk.Button) and widget.winfo_name() == 'suggestion_button':
+                widget.destroy()
+
         for i in range(min(len(suggestions), 3)):
-            suggestion_btn = ttk.Button(content_frame, text=suggestions[i], command=lambda s=suggestions[i]: suggestion_click(s))
-            suggestion_btn.pack(side="bottom", padx=5, pady=5)
+            suggestion_btn = ttk.Button(content_frame, text=suggestions[i], command=lambda s=suggestions[i]: suggestion_click(s), name='suggestion_button')
+            suggestion_btn.pack(side="left", padx=5, pady=5)
     else:
         suggestion_label.config(text="No suggestions available")
         root.after(3000, lambda: suggestion_label.config(text=""))
 
+
 def on_project_description_click():
-    # Create a new window
     project_description_window = tk.Toplevel(root)
     project_description_window.title("Project Description")
     project_description_window.configure(bg="#0B0B45")
 
-    # Set window size and position
     window_width = 600
     window_height = 400
     screen_width = project_description_window.winfo_screenwidth()
@@ -357,11 +300,9 @@ def on_project_description_click():
     y = (screen_height - window_height) // 2
     project_description_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
-    # Add project description label
     project_description_label = tk.Label(project_description_window, text="Project Description", font=("Helvetica", 20), bg="#0B0B45", fg="#00c04b")
     project_description_label.pack(pady=(20, 10))
 
-    # Add project information
     project_info = """
     This project is a Sign Language to Text converter that uses a convolutional neural network (CNN)
     to recognize hand signs and translate them into text. The model is trained on a dataset of
@@ -389,17 +330,12 @@ def on_project_description_click():
     project_info_label = tk.Label(project_description_window, text=project_info, font=("Helvetica", 14), bg="#0B0B45", fg="white", justify="left")
     project_info_label.pack(expand=True, padx=20, pady=10)
 
-    # Make the GitHub repository link clickable
     project_info_label.bind("<Button-1>", open_github)
 
-# Add "Project Description" button
 project_description_button = ttk.Button(root, text="Project Description", command=on_project_description_click)
 project_description_button.pack(side="top", anchor="ne", padx=10, pady=10)
 
-
-
 root.mainloop()
 
-# Release the capture
 cap.release()
 cv2.destroyAllWindows()
