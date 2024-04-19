@@ -70,4 +70,3 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-Feel free to expand upon each section with more detailed instructions, screenshots, or additional information as needed. Happy coding!
