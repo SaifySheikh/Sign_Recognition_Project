@@ -10,6 +10,14 @@ import time
 import pyttsx3
 from tkinter import messagebox
 import webbrowser
+from pymongo import MongoClient
+
+
+client = MongoClient('mongodb+srv://saifyssk04:pOEox5ftg1vvF0DR@cluster0.82s5jhu.mongodb.net/')
+
+# Accessing the database
+db = client['SignLanguageSuggestion']
+
 
 json_file = open("signlanguagedetectionmodel48x48.json", "r")
 model_json = json_file.read()
@@ -103,28 +111,38 @@ def on_audio_click():
         engine.say("Nothing to say")
         engine.runAndWait()    
 
-def get_suggestions(current_word):
-    suggestions = ['APPLE', 'BANANA', 'ORANGE', 'PEAR', 'PEACH', 'PINEAPPLE', 'HI', 'HELLO', 'HEY', 'GOOD MORNING', 'GOOD AFTERNOON', 'GOOD EVENING', 
-               'HOWDY', 'GREETINGS', 'SALUTATIONS', 'WHATS UP', 'SUP', 
-               'HOWS IT GOING', 'NICE TO MEET YOU', 'PLEASED TO MEET YOU', 'WELCOME', 
-               'HOLA', 'BONJOUR', 'CIAO', 'SALAAM', 'NAMASTE', 'DOG', 'CAT', 'BIRD', 'ELEPHANT', 'LION', 'TIGER', 
-               'HOUSE', 'CAR', 'BIKE', 'PLANE', 'TRAIN', 'BOAT', 
-               'RED', 'BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PURPLE', 
-               'HAPPY', 'SAD', 'ANGRY', 'EXCITED', 'CALM', 'SURPRISED', 
-               'EAT', 'DRINK', 'SLEEP', 'RUN', 'WALK', 'JUMP', 
-               'BIG', 'SMALL', 'TALL', 'SHORT', 'THIN', 
-               'HOT', 'COLD', 'FAST', 'SLOW', 'OLD', 'NEW',
-               'APPLE', 'BALL', 'CAT', 'DOG', 'ELEPHANT', 'FISH',
-               'GOAT', 'HAT', 'ICE', 'JUICE', 'KITE', 'LION',
-               'MOON', 'NEST', 'OWL', 'PEAR', 'QUEEN', 'RAT',
-               'SUN', 'TREE', 'UMBRELLA', 'VAN', 'WATCH', 'RCOEM',
-               'YES', 'NO', 'ZEBRA', 'CARROT', 'BUS', 'TRAIN', 'AIRPLANE',
-               'TRUCK', 'ROBOT', 'ROCKET', 'PIANO', 'GUITAR', 'VIOLIN',
-               'COMPUTER', 'PHONE', 'TABLET', 'CAMERA', 'RAMDEOBABA', 'OVEN',
-               'CHAIR', 'TABLE', 'BED', 'LAMP', 'MIRROR', 'WINDOW','COLLEGE','ENGINEERING','AND','MANAGEMENT']
+# def get_suggestions(current_word):
+#     suggestions = ['APPLE', 'BANANA', 'ORANGE', 'PEAR', 'PEACH', 'PINEAPPLE', 'HI', 'HELLO', 'HEY', 'GOOD MORNING', 'GOOD AFTERNOON', 'GOOD EVENING', 
+#                'HOWDY', 'GREETINGS', 'SALUTATIONS', 'WHATS UP', 'SUP', 
+#                'HOWS IT GOING', 'NICE TO MEET YOU', 'PLEASED TO MEET YOU', 'WELCOME', 
+#                'HOLA', 'BONJOUR', 'CIAO', 'SALAAM', 'NAMASTE', 'DOG', 'CAT', 'BIRD', 'ELEPHANT', 'LION', 'TIGER', 
+#                'HOUSE', 'CAR', 'BIKE', 'PLANE', 'TRAIN', 'BOAT', 
+#                'RED', 'BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PURPLE', 
+#                'HAPPY', 'SAD', 'ANGRY', 'EXCITED', 'CALM', 'SURPRISED', 
+#                'EAT', 'DRINK', 'SLEEP', 'RUN', 'WALK', 'JUMP', 
+#                'BIG', 'SMALL', 'TALL', 'SHORT', 'THIN', 
+#                'HOT', 'COLD', 'FAST', 'SLOW', 'OLD', 'NEW',
+#                'APPLE', 'BALL', 'CAT', 'DOG', 'ELEPHANT', 'FISH',
+#                'GOAT', 'HAT', 'ICE', 'JUICE', 'KITE', 'LION',
+#                'MOON', 'NEST', 'OWL', 'PEAR', 'QUEEN', 'RAT',
+#                'SUN', 'TREE', 'UMBRELLA', 'VAN', 'WATCH', 'RCOEM',
+#                'YES', 'NO', 'ZEBRA', 'CARROT', 'BUS', 'TRAIN', 'AIRPLANE',
+#                'TRUCK', 'ROBOT', 'ROCKET', 'PIANO', 'GUITAR', 'VIOLIN',
+#                'COMPUTER', 'PHONE', 'TABLET', 'CAMERA', 'RAMDEOBABA', 'OVEN',
+#                'CHAIR', 'TABLE', 'BED', 'LAMP', 'MIRROR', 'WINDOW','COLLEGE','ENGINEERING','AND','MANAGEMENT']
 
+    # return [suggestion for suggestion in suggestions if suggestion.startswith(current_word)]
+def get_suggestions(current_word):
+    suggestions_collection = db['SignLanguageSuggestion']  # Assuming you have a collection named 'suggestions'
+    suggestions = []
+
+    # Query MongoDB for suggestions starting with current_word
+    cursor = suggestions_collection.find({'word': {'$regex': '^' + current_word}})
     
-    return [suggestion for suggestion in suggestions if suggestion.startswith(current_word)]
+    for doc in cursor:
+        suggestions.append(doc['word'])
+
+    return suggestions
 
 def suggestion_click(suggestion):
     global current_word, current_sentence
@@ -218,7 +236,7 @@ def update_frame():
 
     cv2.imshow("Sign Language to Text", frame)
 
-    if max_accu > 80:
+    if max_accu > 75:
         if start_time is not None:
             elapsed_time = time.time() - start_time
             if elapsed_time >= 3 and pred_label != 'blank':
