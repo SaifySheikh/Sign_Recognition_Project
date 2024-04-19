@@ -157,7 +157,7 @@ def suggestion_click(suggestion):
 cap = cv2.VideoCapture(0)
 
 root = tk.Tk()
-root.title("Sign Language to Text")
+root.title("Real Time Sign Language to Text Conversion")
 
 window_width = 800
 window_height = 600
