@@ -133,10 +133,9 @@ def on_audio_click():
 
     # return [suggestion for suggestion in suggestions if suggestion.startswith(current_word)]
 def get_suggestions(current_word):
-    suggestions_collection = db['SignLanguageSuggestion']  # Assuming you have a collection named 'suggestions'
+    suggestions_collection = db['SignLanguageSuggestion']
     suggestions = []
 
-    # Query MongoDB for suggestions starting with current_word
     cursor = suggestions_collection.find({'word': {'$regex': '^' + current_word}})
     
     for doc in cursor:
