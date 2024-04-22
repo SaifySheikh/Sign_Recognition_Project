@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 import tkinter as tk
 from tkinter import ttk
-from tkinter import ttk
 from PIL import Image, ImageTk
 from PIL import Image, ImageTk, ImageDraw
 import time
@@ -13,9 +12,8 @@ import webbrowser
 from pymongo import MongoClient
 
 
-client = MongoClient('mongodb+srv://saifyssk04:pOEox5ftg1vvF0DR@cluster0.82s5jhu.mongodb.net/')
+client = MongoClient('your MongoDB connection url')
 
-# Accessing the database
 db = client['SignLanguageSuggestion']
 
 
