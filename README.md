@@ -66,7 +66,8 @@ Contributions to the Sign Language to Text Converter project are welcome! If you
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](https://github.com/SaifySheikh/Sign_Recognition_Project/blob/main/MIT%20LICENSE).
+
 
 ---
 
