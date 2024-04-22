@@ -11,7 +11,7 @@ Welcome to the Sign Language to Text Converter project! This application utilize
 3. [Usage](#usage)
 4. [Features](#features)
 5. [Contributing](#contributing)
-6. [Demonstration](#demonstraton)
+6. [Demonstration](#demonstration)
 7. [License](#license)
 
 ## Getting Started
